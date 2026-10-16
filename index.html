@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#17212b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>我的打卡薪資</title>
+<style>
+:root{--bg:#f3f5f7;--card:#fff;--ink:#1f2933;--muted:#697586;--line:#e4e8ed;--accent:#183b4e;--gold:#c7a66a;--ok:#217a58;--danger:#b54747}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif}
+header{background:linear-gradient(135deg,#132a38,#244b5a);color:#fff;padding:24px 18px 20px;border-radius:0 0 24px 24px}
+header .eyebrow{font-size:12px;letter-spacing:2px;color:#d6c39b}h1{font-size:24px;margin:6px 0}header p{margin:0;color:#d9e2e8;font-size:13px}
+main{max-width:760px;margin:auto;padding:16px 14px 40px}.tabs{display:flex;gap:8px;overflow:auto;margin:0 0 14px}
+.tab{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;white-space:nowrap;color:var(--muted);font-weight:650}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.panel{display:none}.panel.active{display:block}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:13px;box-shadow:0 4px 16px #17212b08}
+.card h2{font-size:16px;margin:0 0 13px}.muted{color:var(--muted);font-size:13px}.big{font-size:30px;font-weight:800;letter-spacing:-.5px}.gold{color:var(--gold)}
+.row{display:flex;gap:10px;align-items:center}.row>*{flex:1;min-width:0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px}input,select,textarea{width:100%;border:1px solid #d8dee5;border-radius:10px;padding:11px 10px;font:inherit;background:#fff;color:var(--ink);min-height:42px}
+button{border:0;border-radius:12px;padding:12px 14px;font:inherit;font-weight:700;cursor:pointer}.primary{background:var(--accent);color:#fff}.secondary{background:#eef2f5;color:var(--accent)}.goldbtn{background:#e9ddc5;color:#493b20}.danger{background:#faeaea;color:var(--danger)}.btnrow{display:flex;gap:8px;flex-wrap:wrap}.btnrow button{flex:1}
+.stat{padding:12px;background:#f6f8fa;border-radius:12px}.stat small{display:block;color:var(--muted);font-size:12px}.stat strong{font-size:20px;display:block;margin-top:4px}
+.record{border:1px solid var(--line);padding:12px;border-radius:12px;margin-top:9px}.recordtop{display:flex;justify-content:space-between;gap:10px;font-weight:700}.recordmeta{font-size:13px;color:var(--muted);margin-top:6px}
+hr{border:0;border-top:1px solid var(--line);margin:14px 0}.moneyline{display:flex;justify-content:space-between;gap:12px;margin:9px 0;font-size:14px}.moneyline.total{font-weight:800;font-size:17px;border-top:1px solid var(--line);padding-top:12px}
+.notice{background:#fff8e9;border:1px solid #f0dfba;padding:11px;border-radius:12px;color:#72592a;font-size:12px;line-height:1.6}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:8px}
+@media(min-width:620px){main{padding-top:20px}.grid.stats{grid-template-columns:repeat(4,1fr)}}
+</style></head>
+<body>
+<header><div class="eyebrow">PERSONAL WORK LOG</div><h1>我的打卡薪資</h1><p>出勤紀錄・加班試算・每月薪資核對</p></header>
+<main>
+<div class="tabs">
+<button class="tab active" data-tab="clock">打卡首頁</button><button class="tab" data-tab="records">出勤紀錄</button><button class="tab" data-tab="summary">月統計／薪資單</button><button class="tab" data-tab="settings">設定</button>
+</div>
+<section id="clock" class="panel active">
+<div class="card"><div class="row"><div><label>今天日期（可修改）</label><input id="workDate" type="date"></div><div><label>目前時間</label><input id="clockTime" type="time"></div></div>
+<div style="margin:16px 0 8px" class="muted">今日打卡狀態</div><div class="grid"><div class="stat"><small>上班時間</small><strong id="todayIn">尚未打卡</strong></div><div class="stat"><small>下班時間</small><strong id="todayOut">尚未打卡</strong></div></div>
+<div class="btnrow" style="margin-top:14px"><button class="primary" id="checkIn">上班打卡</button><button class="goldbtn" id="checkOut">下班打卡</button></div>
+<p class="muted" style="margin-bottom:0">標準班別：07:30–12:00、13:00–17:00；午休 12:00–13:00。</p></div>
+<div class="card"><h2>今日薪資預估</h2><div class="grid"><div class="stat"><small>出勤日薪</small><strong id="todayPay">$0</strong></div><div class="stat"><small>加班費預估</small><strong id="todayOT">$0</strong></div></div><p class="muted">加班依設定的起算時間與倍率試算；實際薪資仍以公司核定及適用法令為準。</p></div>
+</section>
+<section id="records" class="panel"><div class="card"><h2>出勤紀錄</h2><div class="row"><div><label>月份</label><input id="recordMonth" type="month"></div><div><label>新增／修改日期</label><input id="editDate" type="date"></div></div>
+<div class="grid" style="margin-top:10px"><div><label>上班時間</label><input id="editIn" type="time" value="07:30"></div><div><label>下班時間</label><input id="editOut" type="time" value="17:00"></div></div>
+<div class="row" style="margin-top:10px"><div><label>備註</label><input id="editNote" placeholder="例如：請假、漏打卡"></div><div style="align-self:end"><button class="primary" id="saveRecord" style="width:100%">儲存紀錄</button></div></div>
+<div id="recordList"></div></div></section>
+<section id="summary" class="panel"><div class="card"><h2>月統計</h2><label>薪資月份</label><input id="salaryMonth" type="month">
+<div class="grid stats" style="margin-top:12px"><div class="stat"><small>出勤天數</small><strong id="days">0 天</strong></div><div class="stat"><small>加班時數</small><strong id="otHours">0 小時</strong></div><div class="stat"><small>應發薪資</small><strong id="gross">$0</strong></div><div class="stat"><small>實領試算</small><strong id="net">$0</strong></div></div></div>
+<div class="card"><h2>薪資單／核對</h2><div class="grid"><div><label>公司薪資單應領金額</label><input id="expectedGross" type="number" min="0" placeholder="輸入薪資單應領"></div><div><label>公司實際入帳金額</label><input id="actualNet" type="number" min="0" placeholder="輸入實際入帳"></div></div>
+<hr><div class="moneyline"><span>出勤薪資</span><strong id="basePay">$0</strong></div><div class="moneyline"><span>加班費試算</span><strong id="otPay">$0</strong></div><div class="moneyline"><span>全勤獎金（滿 22 天）</span><strong id="attendanceBonus">$0</strong></div><div class="moneyline"><span>其他津貼／獎金</span><strong id="allowanceDisplay">$0</strong></div><div class="moneyline"><span>勞保／就保個人扣款</span><strong id="laborDisplay">$0</strong></div><div class="moneyline"><span>健保個人扣款</span><strong id="healthDisplay">$0</strong></div><div class="moneyline"><span>勞退自提</span><strong id="pensionDisplay">$0</strong></div><div class="moneyline"><span>其他合法扣款</span><strong id="otherDisplay">$0</strong></div><div class="moneyline total"><span>預估實領</span><strong id="netDetail">$0</strong></div>
+<div id="reconcile" class="notice" style="margin-top:12px">輸入公司薪資單金額後，可核對差額。</div>
+<div class="btnrow" style="margin-top:12px"><button class="secondary" id="printSlip">列印／存成 PDF</button><button class="primary" id="savePayroll">儲存本月核對</button></div></div>
+</section>
+<section id="settings" class="panel"><div class="card"><h2>薪資設定</h2><div class="grid"><div><label>計薪方式</label><select id="payType"><option value="daily">日薪（自行設定）</option><option value="hourly">時薪</option></select></div><div><label>日薪（元）</label><input id="dailyRate" type="number" min="0" value="1600"></div><div><label>時薪（元）</label><input id="hourlyRate" type="number" min="0" value="200"></div><div><label>加班起算時間</label><input id="otStart" type="time" value="18:30"></div><div><label>加班倍率</label><input id="otMultiplier" type="number" min="1" step=".1" value="2"></div><div><label>發薪日（每月）</label><input id="payDay" type="number" min="1" max="28" value="10"></div></div><p class="muted">發薪日設定為每月 10 日，發放上個月薪資。加班費先依設定倍率估算，不等同法定加班費核算。</p></div>
+<div class="card"><h2>每月扣款與津貼</h2><div class="grid"><div><label>勞保／就保個人扣款（元）</label><input id="laborDeduct" type="number" min="0" value="0"></div><div><label>健保個人扣款（元）</label><input id="healthDeduct" type="number" min="0" value="0"></div><div><label>勞退自提（元）</label><input id="pensionDeduct" type="number" min="0" value="0"></div><div><label>其他扣款（元）</label><input id="otherDeduct" type="number" min="0" value="0"></div><div><label>津貼／獎金（元）</label><input id="allowance" type="number" min="0" value="0"></div><div><label>資遣費試算月平均工資（元）</label><input id="severanceWage" type="number" min="0" value="0"></div><div><label>年資（年）</label><input id="serviceYears" type="number" min="0" step=".1" value="0"></div></div>
+<hr><div class="moneyline"><span>資遣費概算（新制簡易試算）</span><strong id="severance">$0</strong></div><p class="muted">資遣費僅為概算，實際金額須依適用制度、年資及法定計算方式確認。</p><button class="primary" id="saveSettings" style="width:100%">儲存設定</button></div>
+<div class="card"><h2>資料管理</h2><p class="muted">紀錄儲存在目前這台裝置的瀏覽器。清除瀏覽資料或更換手機前，請先匯出備份。</p><div class="btnrow"><button class="secondary" id="exportData">匯出備份</button><button class="danger" id="clearData">清除所有資料</button></div><input type="file" id="importFile" accept="application/json" style="margin-top:10px"><button class="secondary" id="importData" style="width:100%;margin-top:8px">匯入備份檔</button></div>
+</section>
+<footer>個人記錄工具｜出勤滿 22 天自動加發全勤獎金 $2,000｜資料儲存於此裝置，不會自動上傳雲端</footer>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}</script>
+</main>
+<script>
+const $=id=>document.getElementById(id), money=n=>'$'+Math.round(Number(n)||0).toLocaleString('zh-TW');
+const today=new Date(), iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`, month=d=>iso(d).slice(0,7);
+let data=JSON.parse(localStorage.getItem('attendancePayV1')||'{"records":{},"settings":{},"payroll":{}}');
+const defaults={payType:'daily',dailyRate:1600,hourlyRate:200,otStart:'18:30',otMultiplier:2,payDay:10,laborDeduct:0,healthDeduct:0,pensionDeduct:0,otherDeduct:0,allowance:0,severanceWage:0,serviceYears:0};
+function settings(){return {...defaults,...data.settings}}
+function persist(){localStorage.setItem('attendancePayV1',JSON.stringify(data))}
+function val(id){return $(id).value}
+function num(id){return Math.max(0,Number(val(id))||0)}
+function loadSettings(){let s=settings();Object.keys(defaults).forEach(k=>{if($(k))$(k).value=s[k]})}
+function saveSettings(){Object.keys(defaults).forEach(k=>{if($(k))data.settings[k]=$(k).value});persist();renderAll()}
+function recordFor(date){return data.records[date]||{in:'',out:'',note:''}}
+function minutes(t){if(!t)return null;let [h,m]=t.split(':').map(Number);return h*60+m}
+function calc(r){let s=settings(), start=minutes(r.in),end=minutes(r.out),otStart=minutes(s.otStart);let worked=0,ot=0;if(start!=null&&end!=null){if(end<start)end+=1440;worked=Math.max(0,end-start-60);if(otStart!=null)ot=Math.max(0,end-Math.max(otStart,start));}
+let rate=s.payType==='hourly'?Number(s.hourlyRate):Number(s.dailyRate)/8;
+let base=0;if(r.in&&r.out){if(s.payType==='daily')base=Number(s.dailyRate);else base=worked*Number(s.hourlyRate)/60}
+let otPay=ot/60*rate*Number(s.otMultiplier);return {worked,ot,base,otPay}}
+function saveRecord(date,rec){data.records[date]=rec;persist();renderAll()}
+function currentDate(){return val('workDate')||iso(today)}
+function refreshToday(){let r=recordFor(currentDate()),c=calc(r);$('todayIn').textContent=r.in||'尚未打卡';$('todayOut').textContent=r.out||'尚未打卡';$('todayPay').textContent=money(c.base);$('todayOT').textContent=money(c.otPay)}
+function renderRecords(){let m=val('recordMonth')||month(today);let dates=Object.keys(data.records).filter(d=>d.startsWith(m)).sort().reverse();$('recordList').innerHTML=dates.length?dates.map(d=>{let r=data.records[d],c=calc(r);return `<div class="record"><div class="recordtop"><span>${d}</span><span>${money(c.base+c.otPay)}</span></div><div class="recordmeta">上班 ${r.in||'—'}　下班 ${r.out||'—'}　加班 ${Math.floor(c.ot/60)}時${c.ot%60}分${r.note?'　｜　'+escapeHtml(r.note):''}</div><div class="btnrow" style="margin-top:8px"><button class="secondary" onclick="editRecord('${d}')">編輯</button><button class="danger" onclick="deleteRecord('${d}')">刪除</button></div></div>`}).join(''):'<p class="muted">這個月份還沒有出勤紀錄。</p>'}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+window.editRecord=d=>{let r=recordFor(d);$('editDate').value=d;$('editIn').value=r.in||'';$('editOut').value=r.out||'';$('editNote').value=r.note||'';window.scrollTo({top:0,behavior:'smooth'})}
+window.deleteRecord=d=>{if(confirm('確定刪除 '+d+' 的紀錄？')){delete data.records[d];persist();renderAll()}}
+function renderSummary(){let m=val('salaryMonth')||month(today),rs=Object.entries(data.records).filter(([d,r])=>d.startsWith(m)&&r.in&&r.out).map(([d,r])=>calc(r)),days=rs.length,ot=rs.reduce((a,c)=>a+c.ot,0),base=rs.reduce((a,c)=>a+c.base,0),otp=rs.reduce((a,c)=>a+c.otPay,0),s=settings(),bonus=days>=22?2000:0,gross=base+otp+bonus+Number(s.allowance),ded=Number(s.laborDeduct)+Number(s.healthDeduct)+Number(s.pensionDeduct)+Number(s.otherDeduct),net=gross-ded;
+$('days').textContent=days+' 天';$('otHours').textContent=(ot/60).toFixed(1)+' 小時';$('gross').textContent=money(gross);$('net').textContent=money(net);$('basePay').textContent=money(base);$('otPay').textContent=money(otp);$('attendanceBonus').textContent=money(bonus);$('allowanceDisplay').textContent=money(s.allowance);$('laborDisplay').textContent=money(s.laborDeduct);$('healthDisplay').textContent=money(s.healthDeduct);$('pensionDisplay').textContent=money(s.pensionDeduct);$('otherDisplay').textContent=money(s.otherDeduct);$('netDetail').textContent=money(net);
+let p=data.payroll[m]||{};if(document.activeElement!==$('expectedGross'))$('expectedGross').value=p.expectedGross??'';if(document.activeElement!==$('actualNet'))$('actualNet').value=p.actualNet??'';
+let diff1=$('expectedGross').value===''?null:Number($('expectedGross').value)-gross,diff2=$('actualNet').value===''?null:Number($('actualNet').value)-net;
+$('reconcile').textContent=`${m} 薪資核對：`+(diff1===null?'尚未輸入公司應領金額。':`公司應領與本工具試算差額 ${money(diff1)}。 `)+(diff2===null?'尚未輸入實際入帳金額。':`實際入帳與預估實領差額 ${money(diff2)}。`);
+let sw=Number(s.severanceWage),years=Number(s.serviceYears);$('severance').textContent=money(Math.min(sw*years/2,sw*6))}
+function renderAll(){refreshToday();renderRecords();renderSummary()}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab,.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active');renderAll()}));
+$('workDate').value=iso(today);$('clockTime').value=`${String(today.getHours()).padStart(2,'0')}:${String(today.getMinutes()).padStart(2,'0')}`;$('recordMonth').value=month(today);$('salaryMonth').value=month(new Date(today.getFullYear(),today.getMonth()-1,1));$('editDate').value=iso(today);
+$('checkIn').onclick=()=>{let d=currentDate(),r=recordFor(d);if(r.in&&!confirm('已有上班時間，要覆蓋嗎？'))return;r.in=val('clockTime');saveRecord(d,r)};
+$('checkOut').onclick=()=>{let d=currentDate(),r=recordFor(d);if(r.out&&!confirm('已有下班時間，要覆蓋嗎？'))return;r.out=val('clockTime');saveRecord(d,r)};
+$('workDate').onchange=refreshToday;$('clockTime').onchange=refreshToday;
+$('saveRecord').onclick=()=>{let d=val('editDate');if(!d){alert('請選擇日期');return}saveRecord(d,{in:val('editIn'),out:val('editOut'),note:val('editNote')});$('recordMonth').value=d.slice(0,7)};
+$('recordMonth').onchange=renderRecords;$('salaryMonth').onchange=renderSummary;
+$('saveSettings').onclick=()=>{saveSettings();alert('設定已儲存')};
+$('expectedGross').oninput=renderSummary;$('actualNet').oninput=renderSummary;
+$('savePayroll').onclick=()=>{let m=val('salaryMonth');data.payroll[m]={expectedGross:val('expectedGross'),actualNet:val('actualNet')};persist();alert('本月薪資核對已儲存')};
+$('printSlip').onclick=()=>window.print();
+$('exportData').onclick=()=>{let a=document.createElement('a'),blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});a.href=URL.createObjectURL(blob);a.download='打卡薪資備份.json';a.click();URL.revokeObjectURL(a.href)};
+$('importData').onclick=()=>{let f=$('importFile').files[0];if(!f){alert('請先選擇 JSON 備份檔');return}let rd=new FileReader();rd.onload=()=>{try{let x=JSON.parse(rd.result);if(!x.records)throw 0;data=x;persist();loadSettings();renderAll();alert('匯入完成')}catch(e){alert('檔案格式不正確')}};rd.readAsText(f)};
+$('clearData').onclick=()=>{if(confirm('確定清除所有打卡、設定與薪資核對資料？此動作無法復原。')){data={records:{},settings:{},payroll:{}};persist();loadSettings();renderAll()}};
+loadSettings();renderAll();
+</script>
+</body></html>
